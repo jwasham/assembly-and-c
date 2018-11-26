@@ -10,7 +10,7 @@ strlen:
     xor rax, rax               ; zero out rax - we'll increment from 0
 
 .loop:
-    cmp byte[rdi + rax], 0     ; look at string's byte, indexed starting at rdi
+    cmp byte[rdi + rax], 0     ; look at string's byte, string is indexed starting at rdi
  
     je .end
 
