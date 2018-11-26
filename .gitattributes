@@ -1,2 +1,2 @@
-*.pyc
-*.py
+**/*.pyc linguist-vendored
+**/*.py linguist-vendored
