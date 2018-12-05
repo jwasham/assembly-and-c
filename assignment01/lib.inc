@@ -18,7 +18,7 @@ string_length:
 print_string:
     call string_length  ; puts string length into rax
     mov rdx, rax        ; rax contains length
-    mov rax, 1 	        ; write syscall
+    mov rax, 1          ; write syscall
     mov rsi, rdi        ; string pointer
     mov rdi, 1          ; stdout file descriptor
     syscall
