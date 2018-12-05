@@ -16,11 +16,11 @@ string_length:
     ret
 
 print_string:
-    call string_length	; puts string length into rax
+    call string_length  ; puts string length into rax
     mov rdx, rax        ; rax contains length
     mov rax, 1 	        ; write syscall
     mov rsi, rdi        ; string pointer
-    mov rdi, 1		; stdout file descriptor
+    mov rdi, 1          ; stdout file descriptor
     syscall
     ret
 
