@@ -1,27 +1,41 @@
+section .data
+newline: db 10
+
 section .text
 
 string_length:
     xor rax, rax
+
+.length_loop:
+    cmp byte[rdi + rax], 0
+    jz .length_end
+    inc rax
+    jmp .length_loop
+
+.length_end:
     ret
 
 print_string:
-    xor rax, rax
+    call string_length	; puts string length into rax
+    mov rdx, rax        ; rax contains length
+    mov rax, 1 	        ; write syscall
+    mov rsi, rdi        ; string pointer
+    mov rdi, 1		; stdout file descriptor
+    syscall
     ret
 
-
 print_char:
-    xor rax, rax
+    call print_string
     ret
 
 print_newline:
-    xor rax, rax
+    mov rdi, newline
+    call print_char
     ret
-
 
 print_uint:
     xor rax, rax
     ret
-
 
 print_int:
     xor rax, rax
@@ -30,7 +44,6 @@ print_int:
 string_equals:
     xor rax, rax
     ret
-
 
 read_char:
     xor rax, rax
@@ -50,7 +63,6 @@ parse_uint:
 parse_int:
     xor rax, rax
     ret 
-
 
 string_copy:
     ret

@@ -1,5 +1,5 @@
 section .data
-        str: db 'asdkbasdka', 0
+        str: db '', 0
         section .text
         %include "lib.inc"
         global _start
