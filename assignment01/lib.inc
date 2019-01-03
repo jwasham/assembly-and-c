@@ -5,6 +5,7 @@ section .text
 
 string_length:
     xor rax, rax
+    ; without ret, it falls through to loop
 
 .length_loop:
     cmp byte[rdi + rax], 0
@@ -35,6 +36,21 @@ print_newline:
 
 print_uint:
     xor rax, rax
+    mov rsi, rsp  ; save stack pointer
+    ; rdi points to beginning of 8 bytes?
+
+.print_uint_loop
+    cmp byte[rdi + rax], 0
+    jz .print_uint_end
+    ; divide rdi by 10, push remainder to stack
+    ; decrement stack pointer
+    inc rax
+    jmp .print_uint_loop
+
+.print_uint_end
+    ; pop stack contents into string
+    ; point rdi to string beginning
+    call print_string
     ret
 
 print_int:
