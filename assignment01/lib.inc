@@ -39,7 +39,7 @@ print_uint:
     mov rsi, rsp  ; save stack pointer
     ; rdi points to beginning of 8 bytes?
 
-.print_uint_loop
+.print_uint_loop:
     cmp byte[rdi + rax], 0
     jz .print_uint_end
     ; divide rdi by 10, push remainder to stack
@@ -47,7 +47,7 @@ print_uint:
     inc rax
     jmp .print_uint_loop
 
-.print_uint_end
+.print_uint_end:
     ; pop stack contents into string
     ; point rdi to string beginning
     call print_string

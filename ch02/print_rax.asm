@@ -15,7 +15,7 @@ _start:
     mov rcx, 64
     ; Each 4 bits should be output as one hex digit
     ; Use shift and bitwise AND to isolate them
-    ; the result id the offset in 'codes' array
+    ; the result is the offset in 'codes' array
 .loop:
     push rax
     sub rcx, 4
