@@ -31,25 +31,26 @@ print_char:
 
 print_newline:
     mov rdi, newline
-    call print_char
-    ret
+    jmp print_char
 
 print_uint:
-    xor rax, rax
+    ; rdi holds 8-byte integer
+    mov rax, rdi  ; DIV divides value in AX
     mov rsi, rsp  ; save stack pointer
-    ; rdi points to beginning of 8 bytes?
 
 .print_uint_loop:
-    cmp byte[rdi + rax], 0
+    cmp rax, 0
     jz .print_uint_end
+    div 10
+    push AH
     ; divide rdi by 10, push remainder to stack
     ; decrement stack pointer
-    inc rax
     jmp .print_uint_loop
 
 .print_uint_end:
     ; pop stack contents into string
     ; point rdi to string beginning
+    
     call print_string
     ret
 
