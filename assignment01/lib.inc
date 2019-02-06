@@ -35,23 +35,31 @@ print_newline:
 
 print_uint:
     ; rdi holds 8-byte integer
-    mov rax, rdi  ; DIV divides value in AX
-    mov rsi, rsp  ; save stack pointer
+    mov rax, rdi  ; rax will be dividend
+    xor rsi, rsi  ; counter of how many times we've pushed
+    mov rcx, 10   ; divisor
+    push newline  ; sets newline at end of buffer to indicate end of string
+    inc rsi
 
 .print_uint_loop:
     cmp rax, 0
-    jz .print_uint_end
-    div 10
-    push AH
-    ; divide rdi by 10, push remainder to stack
-    ; decrement stack pointer
+    jz .print_uint_print
+    xor rdx, rdx  ; clear any garbage from last division
+    div rcx       ; DIV divides value in RDX:RAX by operand
+                  ; quotient stored to RAX
+                  ; remainder stored in RDX
+    add rdx, 48   ; convert to ASCII
+    push rdx      ; push to stack for printing
+    inc rsi       ; keep track of how many times we pushed
     jmp .print_uint_loop
 
-.print_uint_end:
-    ; pop stack contents into string
-    ; point rdi to string beginning
-    
+.print_uint_print:
+    lea rdi, [rsp] ; point rdi to beginning of string 
     call print_string
+    mov rax, rsi  ; move push counter to rax for multiplication
+    mov rsi, 8    ; register size
+    mul rsi       ; multiply rax (counter) by register size
+    add rsp, rax  ; effectively pop all we pushed
     ret
 
 print_int:
