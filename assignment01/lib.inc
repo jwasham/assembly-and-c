@@ -36,10 +36,10 @@ print_newline:
 print_uint:
     ; rdi holds 8-byte integer
     mov rax, rdi  ; rax will be dividend
-    xor rsi, rsi  ; counter of how many times we've pushed
+    xor rsi, rsi  ; counter of how many bytes we've used in the buffer
     mov rcx, 10   ; divisor
-    push newline  ; sets newline at end of buffer to indicate end of string
-    inc rsi
+    push 0x0000000000000000 ; set up 8 byte buffer on stack
+    add rsi, 8    ; we'll use final 8 xeroed bits for newline 
 
 .print_uint_loop:
     cmp rax, 0
@@ -49,17 +49,15 @@ print_uint:
                   ; quotient stored to RAX
                   ; remainder stored in RDX
     add rdx, 48   ; convert to ASCII
-    push rdx      ; push to stack for printing
-    inc rsi       ; keep track of how many times we pushed
+    sal rdx, rsi  ; shift to position
+    or 
+    inc rsi       
     jmp .print_uint_loop
 
 .print_uint_print:
-    lea rdi, [rsp] ; point rdi to beginning of string 
+    lea rdi, [rsp]; point rdi to beginning of string
     call print_string
-    mov rax, rsi  ; move push counter to rax for multiplication
-    mov rsi, 8    ; register size
-    mul rsi       ; multiply rax (counter) by register size
-    add rsp, rax  ; effectively pop all we pushed
+    pop rsi       ; remove buffer
     ret
 
 print_int:
