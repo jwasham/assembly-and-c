@@ -36,10 +36,12 @@ print_newline:
 print_uint:
     ; rdi holds 8-byte integer
     mov rax, rdi  ; rax will be dividend
-    xor rsi, rsi  ; counter of how many bytes we've used in the buffer
     mov rcx, 10   ; divisor
-    push 0x0000000000000000 ; set up 8 byte buffer on stack
-    add rsi, 8    ; we'll use final 8 xeroed bits for newline 
+    mov rsi, rsp  ; save location of the end of the buffer
+    push 0        ; push null terminator, for end of string, 8 bytes
+    dec rsi       ; this will point to the first char in the buffer
+    sub rsp, 16   ; add space for 16 more bytes = null + 7 + 16 = 24 
+                  ; this gives us enough for 20 digits (unsigned long) and a null, aligned to 8 bytes
 
 .print_uint_loop:
     cmp rax, 0
@@ -49,15 +51,14 @@ print_uint:
                   ; quotient stored to RAX
                   ; remainder stored in RDX
     add rdx, 48   ; convert to ASCII
-    sal rdx, rsi  ; shift to position
-    or 
-    inc rsi       
+    dec rsi       
+    mov [rsi], dl ; add lower byte to buffer
     jmp .print_uint_loop
 
 .print_uint_print:
-    lea rdi, [rsp]; point rdi to beginning of string
+    mov rdi, rsi  ; point rdi to beginning of string
     call print_string
-    pop rsi       ; remove buffer
+    add rsp, 24   ; remove buffer
     ret
 
 print_int:
