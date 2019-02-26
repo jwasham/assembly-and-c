@@ -1,5 +1,5 @@
 section .data
-message: db "hello", 10
+    message: db 'hello', 10
 
 section .text
 %include "lib.inc"
@@ -11,8 +11,15 @@ _start:
 
     mov rdi, 123
     call print_uint
+    call print_newline
 
-    mov rax, 60
-    xor rdi, rdi
-    syscall
+    mov rdi, 5678
+    call print_int
+    call print_newline
+
+    mov rdi, -5678
+    call print_int
+    call print_newline
+
+    call exit    
 
