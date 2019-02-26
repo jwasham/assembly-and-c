@@ -1,5 +1,4 @@
 section .data 
-newline: db 10
 
 section .text
 
