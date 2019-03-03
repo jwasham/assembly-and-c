@@ -181,15 +181,32 @@ read_word:
 
 parse_uint:	
     ; rdi points to a string 
-    ; returns rax: number, rdx : length
+    ; returns rax: number as integer
+    ;         rdx: length
 
-    xor rax, rax
+    xor rax, rax ; will create integer here
+    xor rsi, rsi ; byte counter
+    mov rbx, 10  ; will multiply rax by 10 each time
+
+.parse_uint_loop:
+    ; multiply rax by 10
+    ; take digit from rdi + rsi
+    ; convert to int
+    ; add to rax
+    ; inc rsi
+
+.parse_uint_done:
+    mov rdx, rsi
     ret
 
 parse_int:
     ; rdi points to a string 
-    ; returns rax: number, rdx : length
+    ; returns rax: number as integer
+    ;         rdx: length
     
+    ; check for sign
+    ; call parse_uint on rest of string
+    ; negate if sign
     xor rax, rax
     ret
 
