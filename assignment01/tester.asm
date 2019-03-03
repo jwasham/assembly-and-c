@@ -21,5 +21,23 @@ _start:
     call print_int
     call print_newline
 
-    call exit    
+    ;call read_char
+    ;mov rdi, rax
+    ;call print_char  
+    ;call print_newline
+
+    push 0
+    push 0
+    mov rdi, rsp
+    mov rsi, 16
+    call read_word
+    mov rdi, rdx
+    call print_string
+    call print_newline
+    mov rdi, rax
+    call print_string
+    call print_newline
+    sub rsp, 16
+
+    call exit
 

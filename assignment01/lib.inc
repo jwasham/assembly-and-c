@@ -61,7 +61,7 @@ print_uint:
                   ; remainder stored in RDX
     add rdx, 48   ; convert to ASCII
     dec rsi
-    mov [rsi], dl ; add lower byte to buffer
+    mov [rsi], dl ; add lower byte of rdx to buffer
     jmp .print_uint_loop
 
 .print_uint_print:
@@ -73,9 +73,10 @@ print_uint:
 
 print_int:
     ; rdi holds 8-byte signed integer
+    
     mov rsi, rdi  ; determine sign
     sar rsi, 63   ; propagate sign bit right
-    cmp sil, 0xff ; see if lower bits are all on
+    cmp sil, 0xff ; see if lower 8 bits of rsi are all on
     jne print_uint
     push rdi      ; caller-save
     mov rdi, '-'  ; print negative sign
@@ -85,17 +86,99 @@ print_int:
     jmp print_uint
 
 read_char:
-    xor rax, rax
+    ; returns char in rax (char at beginning)
+
+    xor rax, rax  ; 0 is read syscall number: https://web.archive.org/web/20120210203233/http://www.acsu.buffalo.edu/~charngda/linux_syscalls_64bit.html
+    mov rdi, 0    ; 0 is stdin file descriptor
+    push 0        ; allocate 8 bytes on stack
+    mov rsi, rsp  ; beginning of buffer
+    mov rdx, 1    ; read one byte
+    syscall
+
+    ; to print input char:
+    ;xor rdi, rdi
+    ;mov dil, byte[rsp]
+    ;sal rdi, 64 ; zero-out (null-terminate) all but first 8 bits, move 8 bits to beginning of register
+    ;call print_char
+    ;call print_newline
+    
+    pop rax
     ret
 
 read_word:
-    ret
+    ; rdi - address of buffer
+    ; rsi - size of buffer
+    ; return 0 in rax if too large
+    ; return addr in rax if it fits
+    ;        and word length in rdx 
+   
+    ; reading a single word, so skip all whitespace until we reach
+    ; a non-whitespace, then if we hit another whitespace char, 
+    ; add null terminator and return
 
-; rdi points to a string ; returns rax: number, rdx : length parse_uint:
+    mov rbx, rsi  ; save size of buffer
+    xor rcx, rcx  ; initialize byte counter
+    dec rbx       ; account for null terminator
+
+    .read_word_find_word
+        push rdi
+	call read_char
+	pop rdi
+        
+	cmp al, 0x20       ; space
+	je .read_word_find_word
+	cmp al, 0x09       ; tab
+	je .read_word_find_word
+	cmp al, 0x0A       ; line feed
+	je .read_word_find_word
+	cmp al, 0x0D       ; carriage return
+        je .read_word_find_word
+        test al, al        ; null terminator
+	jz .read_word_done
+    
+    .read_word_letters_in_word
+        mov byte[rdi + rcx], al
+	inc rcx
+
+	push rdi
+	call read_char
+	pop rdi
+
+	cmp al, 0x20       ; space
+        je .read_word_done
+        cmp al, 0x09       ; tab
+        je .read_word_done
+        cmp al, 0x0A       ; line feed
+        je .read_word_done
+        cmp al, 0x0D       ; carriage return
+        je .read_word_done
+        
+	cmp rcx, rbx       ; run out of space?
+        je .read_word_too_long	
+
+        jmp .read_word_letters_in_word
+
+    .read_word_done
+        mov byte[rdi + rcx], 0  ; null terminate the string
+	mov rax, rdi
+	mov rdx, rcx
+	ret
+
+    .read_word_too_long
+        xor rax, rax
+        ret
+
+parse_uint:	
+    ; rdi points to a string 
+    ; returns rax: number, rdx : length
+
     xor rax, rax
     ret
 
-; rdi points to a string ; returns rax: number, rdx : length parse_int:
+parse_int:
+    ; rdi points to a string 
+    ; returns rax: number, rdx : length
+    
     xor rax, rax
     ret
 
