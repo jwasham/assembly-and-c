@@ -120,53 +120,64 @@ read_word:
     xor rcx, rcx  ; initialize byte counter
     dec rbx       ; account for null terminator
 
-    .read_word_find_word
-        push rdi
-	call read_char
-	pop rdi
-        
-	cmp al, 0x20       ; space
-	je .read_word_find_word
-	cmp al, 0x09       ; tab
-	je .read_word_find_word
-	cmp al, 0x0A       ; line feed
-	je .read_word_find_word
-	cmp al, 0x0D       ; carriage return
-        je .read_word_find_word
-        test al, al        ; null terminator
-	jz .read_word_done
-    
-    .read_word_letters_in_word
-        mov byte[rdi + rcx], al
-	inc rcx
+.read_word_find_word:
+    push rdi
+    push rbx
+    push rcx
+    call read_char
+    pop rcx
+    pop rbx
+    pop rdi
+    ; char returned in rax (al)
 
-	push rdi
-	call read_char
-	pop rdi
+    cmp al, 0x09       ; tab
+    je .read_word_find_word
+    cmp al, 0x0A       ; line feed
+    je .read_word_find_word
+    cmp al, 0x0D       ; carriage return
+    je .read_word_find_word
+    cmp al, 0x20       ; space
+    je .read_word_find_word
+    test al, al        ; null terminator
+    jz .read_word_done
 
-	cmp al, 0x20       ; space
-        je .read_word_done
-        cmp al, 0x09       ; tab
-        je .read_word_done
-        cmp al, 0x0A       ; line feed
-        je .read_word_done
-        cmp al, 0x0D       ; carriage return
-        je .read_word_done
-        
-	cmp rcx, rbx       ; run out of space?
-        je .read_word_too_long	
+.read_word_letters_in_word:
+    mov byte[rdi + rcx], al
+    inc rcx
 
-        jmp .read_word_letters_in_word
+    push rdi
+    push rbx
+    push rcx
+    call read_char
+    pop rcx
+    pop rbx
+    pop rdi
 
-    .read_word_done
-        mov byte[rdi + rcx], 0  ; null terminate the string
-	mov rax, rdi
-	mov rdx, rcx
-	ret
+    cmp al, 0x09       ; tab
+    je .read_word_done
+    cmp al, 0x0A       ; line feed
+    je .read_word_done
+    cmp al, 0x0D       ; carriage return
+    je .read_word_done
+    cmp al, 0x20       ; space
+    je .read_word_done
+    test al, al        ; null terminator
+    jz .read_word_done
 
-    .read_word_too_long
-        xor rax, rax
-        ret
+    cmp rcx, rbx       ; run out of space?
+    je .read_word_too_long	
+
+    jmp .read_word_letters_in_word
+
+.read_word_done:
+    mov byte[rdi + rcx], 0  ; null terminate the string
+    mov rax, rdi
+    mov rdx, rcx
+    ret
+
+.read_word_too_long:
+    xor rax, rax
+    ret
 
 parse_uint:	
     ; rdi points to a string 

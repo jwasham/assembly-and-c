@@ -28,14 +28,15 @@ _start:
 
     push 0
     push 0
-    mov rdi, rsp
-    mov rsi, 16
+    mov rdi, rsp        ; beginning of buffer
+    mov rsi, 16         ; length to buffer
     call read_word
-    mov rdi, rdx
+    mov rdi, rax
+    push rdx 		; caller saving string length
     call print_string
     call print_newline
-    mov rdi, rax
-    call print_string
+    pop rdi		; caller restore string length
+    call print_int      ; print string length
     call print_newline
     sub rsp, 16
 
